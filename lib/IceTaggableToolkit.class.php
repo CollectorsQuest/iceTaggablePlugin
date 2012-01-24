@@ -163,6 +163,44 @@ class IceTaggableToolkit
     return $tags;
   }
 
+  public static function weight_tags($tags, $steps = 6)
+  {
+    $min = 1e9;
+    $max = -1e9;
+
+    foreach ($tags as $tag => $value)
+    {
+      if (is_array($value)) {
+        $count = &$tags[$tag]["count"];
+      } else {
+        $count = &$tags[$tag];
+      }
+      $count = log($count);
+
+      $min = min($min, $count);
+      $max = max($max, $count);
+
+      unset($count);
+    }
+
+    // Note: we need to ensure the range is slightly too large to make sure even
+    // the largest element is rounded down.
+    $range = max(.01, $max - $min) * 1.0001;
+
+    foreach ($tags as $tag => $value)
+    {
+      if (is_array($value)) {
+        $count = &$tags[$tag]["count"];
+      } else {
+        $count = &$tags[$tag];
+      }
+      $count = 1 + floor($steps * ($count - $min) / $range) - 3;
+      unset($count);
+    }
+
+    return $tags;
+  }
+
   public static function in_iarray($str, $a)
   {
     foreach($a as $v)
