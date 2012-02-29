@@ -117,9 +117,9 @@ class IceTaggableBehavior
     {
       $removed_tags = self::get_removed_tags($object);
 
-      if (isset($removed_tags[$tagname]))
+      if (false !== $key = array_search($tagname, $removed_tags))
       {
-        unset($removed_tags[$tagname]);
+        unset($removed_tags[$key]);
         self::set_removed_tags($object, $removed_tags);
         self::add_saved_tag($object, $tagname);
       }

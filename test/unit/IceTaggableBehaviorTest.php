@@ -19,7 +19,7 @@ iceModelTaggingPeer::doDeleteAll();
 call_user_func(array(_create_object()->getPeer(), 'doDeleteAll'));
 
 // start tests
-$t = new lime_test(66, new lime_output_color());
+$t = new lime_test(69, new lime_output_color());
 
 
 // these tests check for the tags attachement consistency
@@ -176,6 +176,32 @@ $t->ok((count($object_tags) == 2) && $object->hasTag('tutu') && $object->hasTag(
 $object->setTags('wallace, gromit');
 $object_tags = $object->getTags();
 $t->ok((count($object_tags) == 2) && $object->hasTag('wallace') && $object->hasTag('gromit'), 'tags can be set directly using setTags().');
+
+
+$multi_word_tags = array(
+    'le gromit',
+    'le wallace');
+$result_multi_word_tags = array(
+    'le-gromit' => 'le gromit',
+    'le-wallace' => 'le wallace',
+);
+$object->setTags($multi_word_tags);
+$object->save();
+$pk = $object->getPrimaryKey();
+call_user_func(array(constant('TEST_CLASS').'Peer', 'clearInstancePool'));
+$object = call_user_func(array(constant('TEST_CLASS').'Peer', 'retrieveByPK'),
+  $pk);
+$t->is($object->getTags(), $result_multi_word_tags,
+  'Initially setting multi word tags works as expected');
+$object->setTags($multi_word_tags);
+$t->is($object->getTags(), $result_multi_word_tags,
+  'After save the multi word tags are still ok');
+$object->save();
+call_user_func(array(constant('TEST_CLASS').'Peer', 'clearInstancePool'));
+$object = call_user_func(array(constant('TEST_CLASS').'Peer', 'retrieveByPK'),
+  $pk);
+$t->is($object->getTags(), $result_multi_word_tags,
+  'After setting the same multi word tags, we can retrieve them from the DB');
 
 unset($object);
 
