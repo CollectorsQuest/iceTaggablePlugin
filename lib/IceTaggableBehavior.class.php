@@ -45,7 +45,6 @@ class IceTaggableBehavior
   private static function add_saved_tag(BaseObject $object, $tag)
   {
     $slug = Utf8::slugify($tag, '-', true);
-
     self::getTagsHolder($object)->set($slug, $tag, 'saved_tags');
   }
 
@@ -68,8 +67,7 @@ class IceTaggableBehavior
   private static function add_removed_tag(BaseObject $object, $tag)
   {
     $slug = Utf8::slugify($tag, '-', true);
-
-    self::getTagsHolder($object)->set($tag, $tag, 'removed_tags');
+    self::getTagsHolder($object)->set($slug, $tag, 'removed_tags');
   }
 
   private static function clear_removed_tags(BaseObject $object)
@@ -163,6 +161,7 @@ class IceTaggableBehavior
    * Once loaded, this saved tags list is cached and updated in memory.
    *
    * @param      BaseObject  $object
+   * @return     array
    */
   private function getSavedTags(BaseObject $object)
   {
@@ -182,6 +181,7 @@ class IceTaggableBehavior
         $saved_tags = iceModelTagPeer::doSelect($c);
         $tags = array();
 
+        /** @var $tag iceModelTag */
         foreach ($saved_tags as $tag)
         {
           $tags[$tag->getSlug()] = $tag->getName();
@@ -202,6 +202,9 @@ class IceTaggableBehavior
    * already been saved or not.
    *
    * @param      BaseObject  $object
+   * @param      array  $options
+   *
+   * @return     array|string
    */
   public function getTags(BaseObject $object, $options = array())
   {
@@ -230,7 +233,9 @@ class IceTaggableBehavior
         }
       }
 
-      $return = (isset($options['return']) && in_array($options['return'], $pattern)) ? $options['return'] : 'all';
+      $return = (isset($options['return']) && in_array($options['return'], $pattern)) ?
+        $options['return'] :
+        'all';
 
       if ('all' != $return)
       {
@@ -273,8 +278,11 @@ class IceTaggableBehavior
    * 2- $object->hasTag('tag1,tag2,tag3');
    * 3- $object->hasTag(array('tag1', 'tag2', 'tag3'));
    *
-   * @param  BaseObject  $object
-   * @param  mixed       $tag
+   * @param     BaseObject  $object
+   * @param     mixed       $tag
+   *
+   * @throws    LogicException
+   * @return    boolean
    */
   public function hasTag(BaseObject $object, $tag = null)
   {
@@ -319,7 +327,8 @@ class IceTaggableBehavior
       else
       {
         throw new LogicException(sprintf(
-          'IceTaggableBehavior::hasTag() does not support this type of argument : %s.', get_class($tag)
+          'IceTaggableBehavior::hasTag() does not support this type of argument : %s.',
+          get_class($tag)
         ));
       }
     }
@@ -421,7 +430,9 @@ class IceTaggableBehavior
 
       foreach ($searched as $model => $instances)
       {
-        array_map(array('self', 'set_saved_tags'), $instances, array_fill(0, count($instances), array()));
+        array_map(
+          array('self', 'set_saved_tags'), $instances, array_fill(0, count($instances), array())
+        );
         $keys = array_keys($instances);
         $query = 'SELECT %s as id, GROUP_CONCAT(%s) as tags, GROUP_CONCAT(%s) as slugs
                     FROM %s, %s
