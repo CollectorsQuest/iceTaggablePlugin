@@ -254,6 +254,12 @@ class IceTaggableBehavior
       }
     }
 
+    if (isset($options['is_triple']) && (false === $options['is_triple']))
+    {
+      $triple_tags = array_map(array('IceTaggableToolkit', 'extractTriple'), $tags);
+      $tags = array_diff_key($tags, $triple_tags);
+    }
+
     if (!isset($return) || ('all' != $return))
     {
       ksort($tags);

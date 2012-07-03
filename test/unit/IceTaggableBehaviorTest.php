@@ -19,7 +19,7 @@ iceModelTaggingPeer::doDeleteAll();
 call_user_func(array(_create_object()->getPeer(), 'doDeleteAll'));
 
 // start tests
-$t = new lime_test(70, new lime_output_color());
+$t = new lime_test(71, new lime_output_color());
 
 
 // these tests check for the tags attachement consistency
@@ -438,6 +438,12 @@ $object2->removeTag('en:city=Paris');
 $result = $object2->getTags(array('is_triple' => true, 'return' => 'tag'));
 
 $t->is_deeply($result, array('geo:lat=48.8', 'geo:long=2.4', 'de:city=Paris', 'fr:city=Paris'), 'it is possible to remove a triple tag');
+
+// test return only plain tags
+$object2->addTag('pain-tag');
+$result = $object2->getTags(array('is_triple' => false, 'return' => 'tag'));
+
+$t->is_deeply($result, array(), 'it is possible to get only plain tags for an object');
 
 // these tests check for iceModelTagPeer triple tags specific methods (tag clouds generation)
 sfConfig::set('app_IceTaggableBehaviorPlugin_triple_distinct', false);
