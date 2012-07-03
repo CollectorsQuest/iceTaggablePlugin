@@ -19,7 +19,7 @@ iceModelTaggingPeer::doDeleteAll();
 call_user_func(array(_create_object()->getPeer(), 'doDeleteAll'));
 
 // start tests
-$t = new lime_test(69, new lime_output_color());
+$t = new lime_test(70, new lime_output_color());
 
 
 // these tests check for the tags attachement consistency
@@ -119,9 +119,11 @@ $id = $object->getPrimaryKey();
 $object = call_user_func(array(_create_object()->getPeer(), 'retrieveByPk'), $id);
 
 $object2 = _create_object();
-$object2->addTag('clever age, symfony, test');
+$object2->addTag('clever age, symfony, test, tag:special-char');
 $object2->save();
 $object2->removeTag('test');
+$object2->save();
+$object2->removeTag('tag:special-char');
 $object2->save();
 
 $object_tags = $object->getTags();
@@ -429,6 +431,13 @@ $ns = $object2->getTags(array('is_triple' => true,
                               'return'    => 'namespace'));
 $t->ok(count($ns) == 4, 'The method getTags() permit to select only the names of the namespaces of the tags attached to one object.');
 
+
+// test triple tag removal
+$object2->removeTag('en:city=Paris');
+
+$result = $object2->getTags(array('is_triple' => true, 'return' => 'tag'));
+
+$t->is_deeply($result, array('geo:lat=48.8', 'geo:long=2.4', 'de:city=Paris', 'fr:city=Paris'), 'it is possible to remove a triple tag');
 
 // these tests check for iceModelTagPeer triple tags specific methods (tag clouds generation)
 sfConfig::set('app_IceTaggableBehaviorPlugin_triple_distinct', false);
