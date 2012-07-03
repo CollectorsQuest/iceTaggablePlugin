@@ -210,9 +210,14 @@ class IceTaggableBehavior
   {
     $tags = array_merge(self::get_tags($object), $this->getSavedTags($object));
 
+    $triple_filter = create_function('$el', '
+      return !(null === $el[1] && null === $el[2] && null === $el[3]);
+    ');
+
     if (isset($options['is_triple']) && (true === $options['is_triple']))
     {
       $tags = array_map(array('IceTaggableToolkit', 'extractTriple'), $tags);
+      $tags = array_filter($tags, $triple_filter);
       $pattern = array('tag', 'namespace', 'key', 'value');
 
       foreach ($pattern as $key => $value)
@@ -253,10 +258,10 @@ class IceTaggableBehavior
         $tags = array_unique($tags_array);
       }
     }
-
-    if (isset($options['is_triple']) && (false === $options['is_triple']))
+    elseif (isset($options['is_triple']) && (false === $options['is_triple']))
     {
       $triple_tags = array_map(array('IceTaggableToolkit', 'extractTriple'), $tags);
+      $triple_tags = array_filter($triple_tags, $triple_filter);
       $tags = array_diff_key($tags, $triple_tags);
     }
 

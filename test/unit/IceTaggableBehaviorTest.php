@@ -440,10 +440,10 @@ $result = $object2->getTags(array('is_triple' => true, 'return' => 'tag'));
 $t->is_deeply($result, array('geo:lat=48.8', 'geo:long=2.4', 'de:city=Paris', 'fr:city=Paris'), 'it is possible to remove a triple tag');
 
 // test return only plain tags
-$object2->addTag('pain-tag');
-$result = $object2->getTags(array('is_triple' => false, 'return' => 'tag'));
+$object2->addTag('plain-tag');
+$result = $object2->getTags(array('is_triple' => false));
 
-$t->is_deeply($result, array(), 'it is possible to get only plain tags for an object');
+$t->is_deeply($result, array('plain-tag' => 'plain-tag'), 'it is possible to get only plain tags for an object');
 
 // these tests check for iceModelTagPeer triple tags specific methods (tag clouds generation)
 sfConfig::set('app_IceTaggableBehaviorPlugin_triple_distinct', false);
