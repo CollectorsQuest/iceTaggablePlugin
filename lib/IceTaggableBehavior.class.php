@@ -99,8 +99,9 @@ class IceTaggableBehavior
    *
    * @param      BaseObject  $object
    * @param      mixed       $tagname
+   * @param  boolean $machine  - is machine (triple) tag
    */
-  public function addTag(BaseObject $object, $tagname)
+  public function addTag(BaseObject $object, $tagname, $machine = false)
   {
     $tagname = IceTaggableToolkit::explodeTagString($tagname);
 
@@ -108,11 +109,27 @@ class IceTaggableBehavior
     {
       foreach ($tagname as $tag)
       {
-        $this->addTag($object, $tag);
+        $this->addTag($object, $tag, $machine);
       }
     }
     else
     {
+      //if machine we should always save in format matching:market=batman
+      if ($machine)
+      {
+        $triple = IceTaggableToolkit::extractTriple($tagname);
+        if (is_null($triple[1]) || is_null($triple[2]))
+        {
+          $tagname = sprintf('%s:%s=%s',
+            is_null($triple[1]) ?
+              sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_namespace', 'machine') : $triple[1],
+            is_null($triple[2]) ?
+              sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_key', 'tag') : $triple[2],
+            $triple[0]
+          );
+        }
+      }
+
       $removed_tags = self::get_removed_tags($object);
 
       if (false !== $key = array_search($tagname, $removed_tags))
@@ -258,7 +275,8 @@ class IceTaggableBehavior
         $tags = array_unique($tags_array);
       }
     }
-    elseif (isset($options['is_triple']) && (false === $options['is_triple']))
+    //triple tags should not appeared by default
+    elseif (!isset($options['is_triple']) || (isset($options['is_triple']) && (false === $options['is_triple'])))
     {
       $triple_tags = array_map(array('IceTaggableToolkit', 'extractTriple'), $tags);
       $triple_tags = array_filter($triple_tags, $triple_filter);
@@ -569,10 +587,14 @@ class IceTaggableBehavior
    *
    * @param  BaseObject  $object
    * @param  mixed       $tagname
+   * @param  boolean $machine  - is machine (triple) tag
    */
-  public function setTags(BaseObject $object, $tagname)
+  public function setTags(BaseObject $object, $tagname, $machine = false)
   {
-    $this->removeAllTags($object);
-    $this->addTag($object, $tagname);
+    $this->removeTag($object, $this->getTags($object, array(
+      'is_triple' => $machine,
+      'return'    => 'tag',
+    )));
+    $this->addTag($object, $tagname, $machine);
   }
 }
