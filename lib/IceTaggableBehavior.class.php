@@ -242,12 +242,14 @@ class IceTaggableBehavior
         if (isset($options[$value]))
         {
           $tags_array = array();
-
-          foreach ($tags as $tag)
+          foreach ((array) $options[$value] as $options_value)
           {
-            if ($tag[$key] == $options[$value])
+            foreach ($tags as $tag)
             {
-              $tags_array[] = $tag;
+              if ($tag[$key] == $options_value)
+              {
+                $tags_array[] = $tag;
+              }
             }
           }
 
