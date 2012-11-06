@@ -112,7 +112,7 @@ class IceTaggableBehavior
         $this->addTag($object, $tag, $machine);
       }
     }
-    else
+    elseif ($tagname)
     {
       //if machine we should always save in format matching:market=batman
       if ($machine)
