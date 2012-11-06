@@ -112,7 +112,7 @@ class IceTaggableBehavior
         $this->addTag($object, $tag, $machine);
       }
     }
-    else
+    elseif ($tagname)
     {
       //if machine we should always save in format matching:market=batman
       if ($machine)
@@ -121,12 +121,20 @@ class IceTaggableBehavior
         if (is_null($triple[1]) || is_null($triple[2]))
         {
           $tagname = sprintf('%s:%s=%s',
-            is_null($triple[1]) ?
-              sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_namespace', 'machine') : $triple[1],
-            is_null($triple[2]) ?
-              sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_key', 'tag') : $triple[2],
-            $triple[0]
+            trim(
+              is_null($triple[1]) ?
+                sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_namespace', 'machine') : $triple[1]
+            ),
+            trim(
+              is_null($triple[2]) ?
+                sfConfig::get('app_IceTaggableBehaviorPlugin_triple_default_key', 'tag') : $triple[2]
+            ),
+            trim($triple[0])
           );
+        }
+        else
+        {
+          $tagname = sprintf('%s:%s=%s', trim($triple[1]), trim($triple[2]), trim($triple[3]));
         }
       }
 
