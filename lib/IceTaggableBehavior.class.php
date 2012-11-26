@@ -103,6 +103,7 @@ class IceTaggableBehavior
    */
   public function addTag(BaseObject $object, $tagname, $machine = false)
   {
+    $object->tagsMadified = true;
     $tagname = IceTaggableToolkit::explodeTagString($tagname);
 
     if (is_array($tagname))
@@ -380,7 +381,7 @@ class IceTaggableBehavior
    */
   public function postSave(BaseObject $object)
   {
-    if (is_null($object->getPrimaryKey()))
+    if (is_null($object->getPrimaryKey()) || !isset($object->tagsMadified))
     {
       return;
     }
@@ -523,6 +524,7 @@ class IceTaggableBehavior
    */
   public function removeAllTags(BaseObject $object)
   {
+    $object->tagsMadified = true;
     $saved_tags = self::getSavedTags($object);
 
     self::set_saved_tags($object, array());
@@ -539,6 +541,7 @@ class IceTaggableBehavior
    */
   public function removeTag(BaseObject $object, $tagname)
   {
+    $object->tagsMadified = true;
     $tagname = IceTaggableToolkit::explodeTagString($tagname);
 
     if (is_array($tagname))
@@ -580,6 +583,7 @@ class IceTaggableBehavior
    */
   public function replaceTag(BaseObject $object, $tagname, $replacement = null)
   {
+    $object->tagsMadified = true;
     if (($replacement != $tagname) && ($tagname != null))
     {
       $this->removeTag($object, $tagname);
@@ -601,6 +605,7 @@ class IceTaggableBehavior
    */
   public function setTags(BaseObject $object, $tagname, $machine = false)
   {
+    $object->tagsMadified = true;
     $this->removeTag($object, $this->getTags($object, array(
       'is_triple' => $machine,
       'return'    => 'tag',
