@@ -411,7 +411,7 @@ class IceTaggableBehavior
 
       while ($row = $rs->fetch(PDO::FETCH_ASSOC))
       {
-        $removed_tag_ids[] = intval($row['ID']);
+        $removed_tag_ids[] = intval($row['id']);
       }
 
       $c = new Criteria();
